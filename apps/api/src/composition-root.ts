@@ -1,13 +1,15 @@
 import { EnqueueNotification, GetNotification } from '@mensageria/core';
-import Redis from 'ioredis';
+import {
+  createDb,
+  createRabbit,
+  createRedis,
+  PostgresNotificationRepository,
+  RabbitEventPublisher,
+  RedisIdempotencyStore,
+  SystemClock,
+  UuidGenerator,
+} from '@mensageria/infra';
 import type { Env } from './config/env.js';
-import { createDb } from './infra/db/client.js';
-import { PostgresNotificationRepository } from './infra/db/notification-repository.js';
-import { createRabbit } from './infra/messaging/connection.js';
-import { RabbitEventPublisher } from './infra/messaging/event-publisher.js';
-import { RedisIdempotencyStore } from './infra/redis/idempotency-store.js';
-import { SystemClock } from './infra/system-clock.js';
-import { UuidGenerator } from './infra/uuid-generator.js';
 import type { AppDependencies } from './http/dependencies.js';
 
 export interface Container {
@@ -17,7 +19,7 @@ export interface Container {
 
 export async function createContainer(env: Env): Promise<Container> {
   const db = createDb(env.DATABASE_URL);
-  const redis = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null });
+  const redis = createRedis(env.REDIS_URL);
   const rabbit = await createRabbit(env.RABBITMQ_URL);
 
   const notifications = new PostgresNotificationRepository(db);

@@ -5,14 +5,14 @@ import { connect, type Channel } from 'amqplib';
 import { GenericContainer, type StartedTestContainer } from 'testcontainers';
 import type { FastifyInstance } from 'fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { loadEnv } from '../config/env.js';
-import { createContainer, type Container } from '../composition-root.js';
-import { createDb } from '../infra/db/client.js';
-import { migrateToLatest } from '../infra/db/migrator.js';
 import {
+  createDb,
+  migrateToLatest,
   NOTIFICATIONS_EXCHANGE,
   NOTIFICATION_QUEUED_ROUTING_KEY,
-} from '../infra/messaging/topology.js';
+} from '@mensageria/infra';
+import { loadEnv } from '../config/env.js';
+import { createContainer, type Container } from '../composition-root.js';
 import { buildServer } from './server.js';
 
 const emailPayload = {
@@ -41,9 +41,12 @@ describe('API de notificações (integração)', () => {
 
   beforeAll(async () => {
     [pg, redis, rabbit] = await Promise.all([
-      new PostgreSqlContainer('postgres:16-alpine').start(),
-      new GenericContainer('redis:7-alpine').withExposedPorts(6379).start(),
-      new RabbitMQContainer('rabbitmq:3-management-alpine').start(),
+      new PostgreSqlContainer('postgres:16-alpine').withStartupTimeout(120_000).start(),
+      new GenericContainer('redis:7-alpine')
+        .withExposedPorts(6379)
+        .withStartupTimeout(120_000)
+        .start(),
+      new RabbitMQContainer('rabbitmq:3-management-alpine').withStartupTimeout(120_000).start(),
     ]);
     amqpUrl = rabbit.getAmqpUrl();
 
@@ -63,9 +66,9 @@ describe('API de notificações (integração)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
-    await container.dispose();
-    await Promise.all([pg.stop(), redis.stop(), rabbit.stop()]);
+    if (app) await app.close();
+    if (container) await container.dispose();
+    await Promise.all([pg?.stop(), redis?.stop(), rabbit?.stop()]);
   });
 
   it('POST cria a notificação e retorna 202 com Location', async () => {

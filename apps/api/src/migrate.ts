@@ -1,6 +1,5 @@
-import { loadEnv } from '../../config/env.js';
-import { createDb } from './client.js';
-import { migrateToLatest } from './migrator.js';
+import { createDb, migrateToLatest } from '@mensageria/infra';
+import { loadEnv } from './config/env.js';
 
 async function main(): Promise<void> {
   const env = loadEnv();

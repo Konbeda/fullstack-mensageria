@@ -44,21 +44,12 @@ importers:
       '@mensageria/core':
         specifier: workspace:*
         version: link:../../packages/core
-      amqplib:
-        specifier: ^0.10.5
-        version: 0.10.9
+      '@mensageria/infra':
+        specifier: workspace:*
+        version: link:../../packages/infra
       fastify:
         specifier: ^5.2.1
         version: 5.12.5
-      ioredis:
-        specifier: ^5.4.2
-        version: 5.11.1
-      kysely:
-        specifier: ^0.27.5
-        version: 0.27.6
-      pg:
-        specifier: ^8.13.1
-        version: 8.23.0
       zod:
         specifier: ^3.24.1
         version: 3.25.76
@@ -72,9 +63,9 @@ importers:
       '@types/amqplib':
         specifier: ^0.10.6
         version: 0.10.8
-      '@types/pg':
-        specifier: ^8.11.10
-        version: 8.23.1
+      amqplib:
+        specifier: ^0.10.5
+        version: 0.10.9
       testcontainers:
         specifier: ^10.16.0
         version: 10.28.0
@@ -96,6 +87,34 @@ importers:
       '@mensageria/contracts':
         specifier: workspace:*
         version: link:../contracts
+
+  packages/infra:
+    dependencies:
+      '@mensageria/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@mensageria/core':
+        specifier: workspace:*
+        version: link:../core
+      amqplib:
+        specifier: ^0.10.5
+        version: 0.10.9
+      ioredis:
+        specifier: ^5.4.2
+        version: 5.11.1
+      kysely:
+        specifier: ^0.27.5
+        version: 0.27.6
+      pg:
+        specifier: ^8.13.1
+        version: 8.23.0
+    devDependencies:
+      '@types/amqplib':
+        specifier: ^0.10.6
+        version: 0.10.8
+      '@types/pg':
+        specifier: ^8.11.10
+        version: 8.23.1
 
 packages:
 
