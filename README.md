@@ -94,6 +94,20 @@ Com o stack no ar (`pnpm infra:up`) e API/worker rodando:
 - **Logs estruturados** (pino) no worker, com correlação por `notificationId`/canal/tentativa.
 - **Resiliência**: timeout em toda chamada ao provedor (`PROVIDER_TIMEOUT_MS`), além de retry, circuit breaker e DLQ; `GET /health` na API e no worker (readiness/liveness).
 
+## Build & deploy
+
+- **Imagens Docker** — cada app tem um Dockerfile multi-stage: `api`/`worker` compilam com tsup e rodam em `node:24-alpine` com só `dist` + deps de produção; `web` compila com Vite e é servido por `nginx` (que também faz proxy de `/api`).
+  ```bash
+  docker build -f apps/api/Dockerfile -t mensageria-api .
+  docker build -f apps/worker/Dockerfile -t mensageria-worker .
+  docker build -f apps/web/Dockerfile -t mensageria-web .
+  ```
+- **Kubernetes** (`infra/k8s`, via kustomize) — namespace, ConfigMap/Secret, infra e os três apps com **escala independente** (api ×2, worker ×3, web ×2), probes em `/health` e `initContainer` de migrations.
+  ```bash
+  kubectl apply -k infra/k8s
+  ```
+- **CI** (GitHub Actions) — lint, typecheck, testes unitários, integração (Testcontainers), e2e (Playwright) e build das três imagens.
+
 ## Roadmap
 
 O projeto é construído em fatias verticais funcionando ponta a ponta. Fases: fundação → domínio → API produtora → worker resiliente → SPA → e2e Playwright → observabilidade → infra/k8s → orquestração de agentes de IA.
