@@ -65,6 +65,25 @@ curl -i -X POST http://localhost:3000/notifications \
 
 Respostas: `202` (enfileirada) · `200` (replay idempotente) · `422` (validação) · `404` (não encontrada).
 
+## Rodando o worker (consumidor)
+
+Em outro terminal, com a infra e as migrations já no ar:
+
+```bash
+cp apps/worker/.env.example apps/worker/.env
+pnpm --filter @mensageria/worker dev
+```
+
+O worker consome a fila e entrega via provedores simulados, aplicando os padrões de resiliência:
+
+- **Retry com backoff exponencial** — em falha transitória, a mensagem vai para uma fila de espera com TTL e reentra na fila de entrega.
+- **Circuit breaker por canal** — após várias falhas seguidas, o breaker abre e para de chamar o provedor até esfriar (`half_open` → `closed`).
+- **Idempotência no consumo** — entrega já concluída não é reenviada.
+- **Dead-letter queue** — mensagens que esgotam as tentativas caem em `notifications.dlq` para inspeção/reprocesso.
+- **Delivery log** — cada tentativa é registrada no MongoDB.
+
+Para ver a resiliência em ação, suba com `PROVIDER_FAILURE_RATE=1` e acompanhe os retries até a DLQ.
+
 ## Roadmap
 
 O projeto é construído em fatias verticais funcionando ponta a ponta. Fases: fundação → domínio → API produtora → worker resiliente → SPA → e2e Playwright → observabilidade → infra/k8s → orquestração de agentes de IA.

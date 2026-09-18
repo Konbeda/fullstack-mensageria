@@ -1,0 +1,29 @@
+{
+  "name": "@mensageria/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env --import tsx --watch src/main.ts",
+    "build": "tsup",
+    "start": "node --env-file-if-exists=.env dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@mensageria/contracts": "workspace:*",
+    "@mensageria/core": "workspace:*",
+    "@mensageria/infra": "workspace:*",
+    "amqplib": "^0.10.5",
+    "mongodb": "^6.12.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^10.16.0",
+    "@testcontainers/rabbitmq": "^10.16.0",
+    "@types/amqplib": "^0.10.6",
+    "testcontainers": "^10.16.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2"
+  }
+}
