@@ -1,0 +1,77 @@
+{
+  "uid": "mensageria-overview",
+  "title": "Mensageria — Visão Geral",
+  "tags": ["mensageria"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "time": { "from": "now-15m", "to": "now" },
+  "refresh": "5s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Notificações enfileiradas (taxa/s)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (channel) (rate(notifications_enqueued_total[1m]))",
+          "legendFormat": "{{channel}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Entregues vs falhas vs dead-letter (taxa/s)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(notifications_delivered_total[1m]))",
+          "legendFormat": "entregues"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(notifications_failed_total[1m]))",
+          "legendFormat": "falhas"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(rate(notifications_dead_lettered_total[1m]))",
+          "legendFormat": "dead-letter"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Latência de entrega (p95, s)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(notification_delivery_duration_seconds_bucket[5m])))",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Total dead-letter (acumulado)",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(notifications_dead_lettered_total)",
+          "legendFormat": "dead-letter"
+        }
+      ]
+    }
+  ]
+}

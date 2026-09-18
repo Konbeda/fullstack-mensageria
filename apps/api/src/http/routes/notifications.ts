@@ -4,6 +4,7 @@ import {
   NotificationStatusSchema,
 } from '@mensageria/contracts';
 import { NotificationNotFoundError } from '@mensageria/core';
+import type { Metrics } from '@mensageria/observability';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { AppDependencies } from '../dependencies.js';
@@ -16,7 +17,11 @@ const ListQuerySchema = z.object({
   channel: ChannelSchema.optional(),
 });
 
-export function registerNotificationRoutes(app: FastifyInstance, deps: AppDependencies): void {
+export function registerNotificationRoutes(
+  app: FastifyInstance,
+  deps: AppDependencies,
+  metrics?: Metrics,
+): void {
   app.get('/notifications', async (request, reply) => {
     const parsed = ListQuerySchema.safeParse(request.query);
     if (!parsed.success) {
@@ -56,6 +61,8 @@ export function registerNotificationRoutes(app: FastifyInstance, deps: AppDepend
       data: parsed.data,
       ...(idempotencyKey ? { idempotencyKey } : {}),
     });
+
+    if (!result.deduplicated) metrics?.enqueued.inc({ channel: result.notification.channel });
 
     reply.header('Location', `/notifications/${result.notification.id}`);
     // 202: enfileirada agora; 200: replay idempotente da mesma requisição.

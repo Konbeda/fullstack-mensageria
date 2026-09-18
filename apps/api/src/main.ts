@@ -5,7 +5,10 @@ import { buildServer } from './http/server.js';
 async function main(): Promise<void> {
   const env = loadEnv();
   const container = await createContainer(env);
-  const app = buildServer(container.deps, { logger: { level: env.LOG_LEVEL } });
+  const app = buildServer(container.deps, {
+    logger: { level: env.LOG_LEVEL },
+    metrics: container.metrics,
+  });
 
   const shutdown = (signal: string): void => {
     app.log.info({ signal }, 'encerrando aplicação');

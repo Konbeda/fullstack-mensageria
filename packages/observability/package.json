@@ -1,0 +1,20 @@
+{
+  "name": "@mensageria/observability",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "pino": "^9.6.0",
+    "prom-client": "^15.1.3"
+  }
+}

@@ -84,6 +84,16 @@ O worker consome a fila e entrega via provedores simulados, aplicando os padrõe
 
 Para ver a resiliência em ação, suba com `PROVIDER_FAILURE_RATE=1` e acompanhe os retries até a DLQ.
 
+## Observabilidade
+
+Com o stack no ar (`pnpm infra:up`) e API/worker rodando:
+
+- **Métricas Prometheus** — a API expõe `GET /metrics` (`:3000`) e o worker em `:3100/metrics`, com contadores de domínio (`notifications_enqueued_total`, `..._delivered_total`, `..._failed_total`, `..._dead_lettered_total`) e um histograma de latência de entrega.
+- **Prometheus** coleta os dois alvos em `http://localhost:9090`.
+- **Grafana** em `http://localhost:3001` (login anônimo) já vem com o dashboard **Mensageria — Visão Geral** provisionado: taxas de enfileiramento/entrega/falha, dead-letter acumulado e latência p95.
+- **Logs estruturados** (pino) no worker, com correlação por `notificationId`/canal/tentativa.
+- **Resiliência**: timeout em toda chamada ao provedor (`PROVIDER_TIMEOUT_MS`), além de retry, circuit breaker e DLQ; `GET /health` na API e no worker (readiness/liveness).
+
 ## Roadmap
 
 O projeto é construído em fatias verticais funcionando ponta a ponta. Fases: fundação → domínio → API produtora → worker resiliente → SPA → e2e Playwright → observabilidade → infra/k8s → orquestração de agentes de IA.

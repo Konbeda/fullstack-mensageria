@@ -14,6 +14,7 @@ const EnvSchema = z.object({
   CIRCUIT_FAILURE_THRESHOLD: z.coerce.number().int().positive().default(5),
   CIRCUIT_RESET_MS: z.coerce.number().int().positive().default(15_000),
   PROVIDER_FAILURE_RATE: z.coerce.number().min(0).max(1).default(0),
+  PROVIDER_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });
 

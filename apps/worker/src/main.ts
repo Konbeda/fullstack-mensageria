@@ -4,7 +4,6 @@ import { startWorker } from './composition-root.js';
 async function main(): Promise<void> {
   const env = loadEnv();
   const worker = await startWorker(env);
-  console.log('worker consumindo a fila de entregas');
 
   const shutdown = (signal: string): void => {
     console.log(`encerrando worker (${signal})`);
