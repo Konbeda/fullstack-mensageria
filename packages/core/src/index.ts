@@ -10,4 +10,5 @@ export * from './application/ports/idempotency-store.js';
 export * from './application/ports/notification-provider.js';
 
 export * from './application/use-cases/enqueue-notification.js';
+export * from './application/use-cases/get-notification.js';
 export * from './application/use-cases/process-delivery.js';
