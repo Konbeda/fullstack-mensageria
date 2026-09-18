@@ -2,7 +2,11 @@ import type { Channel } from '@mensageria/contracts';
 import { Notification, type NotificationSnapshot } from '../domain/notification.js';
 import type { Clock } from '../application/ports/clock.js';
 import type { IdGenerator } from '../application/ports/id-generator.js';
-import type { NotificationRepository } from '../application/ports/notification-repository.js';
+import type {
+  NotificationListParams,
+  NotificationListResult,
+  NotificationRepository,
+} from '../application/ports/notification-repository.js';
 import type {
   DeliveryAttemptLog,
   DeliveryLogRepository,
@@ -28,6 +32,17 @@ export class InMemoryNotificationRepository implements NotificationRepository {
   async findById(id: string): Promise<Notification | null> {
     const snapshot = this.store.get(id);
     return snapshot ? Notification.restore(snapshot) : null;
+  }
+
+  async list(params: NotificationListParams): Promise<NotificationListResult> {
+    const all = [...this.store.values()]
+      .filter((s) => !params.filter?.status || s.status === params.filter.status)
+      .filter((s) => !params.filter?.channel || s.channel === params.filter.channel)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return {
+      items: all.slice(params.offset, params.offset + params.limit),
+      total: all.length,
+    };
   }
 }
 

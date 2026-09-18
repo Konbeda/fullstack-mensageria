@@ -53,3 +53,10 @@ export const NotificationSchema = z.object({
   updatedAt: z.string().datetime(),
 });
 export type Notification = z.infer<typeof NotificationSchema>;
+
+export interface NotificationPage {
+  items: Notification[];
+  total: number;
+  page: number;
+  pageSize: number;
+}

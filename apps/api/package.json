@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fastify/cors": "^10.0.2",
     "@mensageria/contracts": "workspace:*",
     "@mensageria/core": "workspace:*",
     "@mensageria/infra": "workspace:*",

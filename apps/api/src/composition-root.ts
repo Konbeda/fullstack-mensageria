@@ -1,4 +1,4 @@
-import { EnqueueNotification, GetNotification } from '@mensageria/core';
+import { EnqueueNotification, GetNotification, ListNotifications } from '@mensageria/core';
 import {
   createDb,
   createRabbit,
@@ -34,9 +34,10 @@ export async function createContainer(env: Env): Promise<Container> {
     ids: new UuidGenerator(),
   });
   const getNotification = new GetNotification({ notifications });
+  const listNotifications = new ListNotifications({ notifications });
 
   return {
-    deps: { enqueue, getNotification },
+    deps: { enqueue, getNotification, listNotifications },
     dispose: async () => {
       await rabbit.close();
       redis.disconnect();

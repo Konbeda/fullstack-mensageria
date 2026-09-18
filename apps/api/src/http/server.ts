@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import cors from '@fastify/cors';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import type { AppDependencies } from './dependencies.js';
 import { registerErrorHandler } from './error-handler.js';
@@ -19,6 +20,7 @@ export function buildServer(
     genReqId: () => randomUUID(),
   });
 
+  void app.register(cors, { origin: true });
   registerErrorHandler(app);
   registerHealthRoutes(app);
   registerNotificationRoutes(app, deps);

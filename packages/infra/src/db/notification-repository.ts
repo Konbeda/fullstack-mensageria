@@ -1,6 +1,8 @@
 import type { Channel, NotificationStatus } from '@mensageria/contracts';
 import {
   Notification,
+  type NotificationListParams,
+  type NotificationListResult,
   type NotificationRepository,
   type NotificationSnapshot,
 } from '@mensageria/core';
@@ -58,5 +60,24 @@ export class PostgresNotificationRepository implements NotificationRepository {
       .where('id', '=', id)
       .executeTakeFirst();
     return row ? Notification.restore(toSnapshot(row)) : null;
+  }
+
+  async list(params: NotificationListParams): Promise<NotificationListResult> {
+    let query = this.db.selectFrom('notifications');
+    if (params.filter?.status) query = query.where('status', '=', params.filter.status);
+    if (params.filter?.channel) query = query.where('channel', '=', params.filter.channel);
+
+    const rows = await query
+      .selectAll()
+      .orderBy('created_at', 'desc')
+      .limit(params.limit)
+      .offset(params.offset)
+      .execute();
+
+    const counted = await query
+      .select((eb) => eb.fn.countAll<string>().as('total'))
+      .executeTakeFirstOrThrow();
+
+    return { items: rows.map(toSnapshot), total: Number(counted.total) };
   }
 }
