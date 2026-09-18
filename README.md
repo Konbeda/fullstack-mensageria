@@ -39,10 +39,31 @@ Node.js 24 · TypeScript · Fastify · React + Vite · RabbitMQ · PostgreSQL ·
 ```bash
 pnpm install        # instala o workspace inteiro
 pnpm typecheck      # checagem de tipos em todos os pacotes
-pnpm test           # testes (Vitest)
+pnpm test:unit      # testes unitários (rápidos, sem infra)
+pnpm test           # todos os testes, incluindo integração (requer Docker)
 pnpm lint           # ESLint (type-checked)
 pnpm format         # Prettier
 ```
+
+## Rodando a API localmente
+
+```bash
+docker compose -f infra/docker-compose.yml up -d   # sobe postgres, redis, rabbitmq, mongo
+cp apps/api/.env.example apps/api/.env             # ajuste se necessário
+pnpm --filter @mensageria/api migrate              # aplica as migrations
+pnpm --filter @mensageria/api dev                  # sobe a API em http://localhost:3000
+```
+
+Exemplo de requisição:
+
+```bash
+curl -i -X POST http://localhost:3000/notifications \
+  -H 'content-type: application/json' \
+  -H 'idempotency-key: abc-123' \
+  -d '{"channel":"email","to":"ana@example.com","subject":"Oi","body":"Olá!"}'
+```
+
+Respostas: `202` (enfileirada) · `200` (replay idempotente) · `422` (validação) · `404` (não encontrada).
 
 ## Roadmap
 
