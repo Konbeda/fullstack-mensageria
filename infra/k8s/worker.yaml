@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: mensageria
+spec:
+  # Consumidores escalam pela profundidade da fila, independente da API.
+  replicas: 3
+  selector:
+    matchLabels: { app: worker }
+  template:
+    metadata:
+      labels: { app: worker }
+    spec:
+      containers:
+        - name: worker
+          image: mensageria-worker:local
+          ports:
+            - containerPort: 3100
+          envFrom:
+            - configMapRef: { name: mensageria-config }
+            - secretRef: { name: mensageria-secret }
+          readinessProbe:
+            httpGet: { path: /health, port: 3100 }
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 3100 }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker
+  namespace: mensageria
+spec:
+  selector: { app: worker }
+  ports:
+    - port: 3100
+      targetPort: 3100
