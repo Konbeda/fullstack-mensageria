@@ -1,4 +1,8 @@
-import type { NotificationQueuedEvent, ProcessDelivery } from '@mensageria/core';
+import type {
+  DeadLetterNotification,
+  NotificationQueuedEvent,
+  ProcessDelivery,
+} from '@mensageria/core';
 import { CircuitOpenError, type CircuitBreakerRegistry } from './resilience/circuit-breaker.js';
 
 export type DeliveryOutcome = 'delivered' | 'retry' | 'dead_letter';
@@ -9,6 +13,7 @@ export interface DeliveryLogger {
 
 export interface DeliveryHandlerDeps {
   process: ProcessDelivery;
+  deadLetter: DeadLetterNotification;
   breakers: CircuitBreakerRegistry;
   maxAttempts: number;
   logger?: DeliveryLogger;
@@ -29,6 +34,9 @@ export class DeliveryHandler {
       const attemptsMade = attempt + 1;
       const outcome: DeliveryOutcome =
         attemptsMade >= this.deps.maxAttempts ? 'dead_letter' : 'retry';
+      if (outcome === 'dead_letter') {
+        await this.deps.deadLetter.execute(event.notificationId);
+      }
       this.deps.logger?.warn(
         {
           notificationId: event.notificationId,

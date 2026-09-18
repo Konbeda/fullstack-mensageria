@@ -9,6 +9,7 @@ export * from './application/ports/event-publisher.js';
 export * from './application/ports/idempotency-store.js';
 export * from './application/ports/notification-provider.js';
 
+export * from './application/use-cases/dead-letter-notification.js';
 export * from './application/use-cases/enqueue-notification.js';
 export * from './application/use-cases/get-notification.js';
 export * from './application/use-cases/list-notifications.js';

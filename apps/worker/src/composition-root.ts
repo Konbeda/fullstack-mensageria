@@ -1,4 +1,4 @@
-import { ProcessDelivery } from '@mensageria/core';
+import { DeadLetterNotification, ProcessDelivery } from '@mensageria/core';
 import {
   createDb,
   createRabbit,
@@ -7,6 +7,7 @@ import {
 } from '@mensageria/infra';
 import type { Env } from './config/env.js';
 import { DeliveryHandler } from './delivery-handler.js';
+import { startHealthServer } from './health-server.js';
 import { createMongo } from './infra/mongo/client.js';
 import { MongoDeliveryLogRepository } from './infra/mongo/delivery-log-repository.js';
 import { FakeNotificationProvider } from './infra/providers/fake-provider.js';
@@ -37,12 +38,9 @@ export async function startWorker(env: Env): Promise<Worker> {
   const provider = new FakeNotificationProvider({ failureRate: env.PROVIDER_FAILURE_RATE });
   const providers = new ChannelProviderRegistry({ email: provider, sms: provider, push: provider });
 
-  const process = new ProcessDelivery({
-    notifications,
-    providers,
-    deliveryLog,
-    clock: new SystemClock(),
-  });
+  const clock = new SystemClock();
+  const process = new ProcessDelivery({ notifications, providers, deliveryLog, clock });
+  const deadLetter = new DeadLetterNotification({ notifications, clock });
   const breakers = new CircuitBreakerRegistry(
     () =>
       new CircuitBreaker({
@@ -50,7 +48,13 @@ export async function startWorker(env: Env): Promise<Worker> {
         resetMs: env.CIRCUIT_RESET_MS,
       }),
   );
-  const handler = new DeliveryHandler({ process, breakers, maxAttempts: env.MAX_ATTEMPTS, logger });
+  const handler = new DeliveryHandler({
+    process,
+    deadLetter,
+    breakers,
+    maxAttempts: env.MAX_ATTEMPTS,
+    logger,
+  });
 
   const consumer = await startConsumer({
     channel: rabbit.channel,
@@ -59,11 +63,13 @@ export async function startWorker(env: Env): Promise<Worker> {
     backoff: (attempt) => exponentialBackoff(attempt, env.RETRY_BASE_MS, env.RETRY_MAX_MS),
     logger,
   });
+  const health = startHealthServer(env.HEALTH_PORT);
 
   return {
     consumer,
     dispose: async () => {
       await consumer.stop();
+      health.close();
       await rabbit.close();
       await mongo.close();
       await db.destroy();

@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { Notification, ProcessDelivery, ProviderError } from '@mensageria/core';
+import {
+  DeadLetterNotification,
+  Notification,
+  ProcessDelivery,
+  ProviderError,
+} from '@mensageria/core';
 import {
   FakeProvider,
   FixedClock,
@@ -14,16 +19,18 @@ const now = new Date('2026-09-17T00:00:00.000Z');
 
 function buildHandler(provider: FakeProvider, maxAttempts: number, failureThreshold = 100) {
   const notifications = new InMemoryNotificationRepository();
+  const clock = new FixedClock(now);
   const process = new ProcessDelivery({
     notifications,
     providers: new StubProviderRegistry(provider),
     deliveryLog: new InMemoryDeliveryLogRepository(),
-    clock: new FixedClock(now),
+    clock,
   });
+  const deadLetter = new DeadLetterNotification({ notifications, clock });
   const breakers = new CircuitBreakerRegistry(
     () => new CircuitBreaker({ failureThreshold, resetMs: 10_000, now: () => 0 }),
   );
-  const handler = new DeliveryHandler({ process, breakers, maxAttempts });
+  const handler = new DeliveryHandler({ process, deadLetter, breakers, maxAttempts });
   return { notifications, handler };
 }
 
@@ -65,13 +72,14 @@ describe('DeliveryHandler', () => {
     expect(await handler.handle({ notificationId: 'n-1', channel: 'email' }, 0)).toBe('retry');
   });
 
-  it('retorna dead_letter quando esgota as tentativas', async () => {
+  it('retorna dead_letter e marca a notificação quando esgota as tentativas', async () => {
     const { notifications, handler } = buildHandler(failProvider, 3);
     await seed(notifications, 'n-1');
 
     expect(await handler.handle({ notificationId: 'n-1', channel: 'email' }, 2)).toBe(
       'dead_letter',
     );
+    expect((await notifications.findById('n-1'))?.status).toBe('dead_lettered');
   });
 
   it('com o circuit aberto, não chama o provider e ainda assim decide retry', async () => {

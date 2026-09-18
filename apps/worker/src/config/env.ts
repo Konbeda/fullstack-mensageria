@@ -6,6 +6,7 @@ const EnvSchema = z.object({
   RABBITMQ_URL: z.string().url(),
   MONGO_URL: z.string().url(),
   MONGO_DB: z.string().default('mensageria'),
+  HEALTH_PORT: z.coerce.number().int().positive().default(3100),
   PREFETCH: z.coerce.number().int().positive().default(10),
   MAX_ATTEMPTS: z.coerce.number().int().positive().default(3),
   RETRY_BASE_MS: z.coerce.number().int().positive().default(1000),

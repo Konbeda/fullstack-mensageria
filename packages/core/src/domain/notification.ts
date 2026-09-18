@@ -73,6 +73,14 @@ export class Notification {
     return this.props.attempts;
   }
 
+  get to(): string {
+    return this.props.to;
+  }
+
+  get content(): NotificationContent {
+    return { ...this.props.content };
+  }
+
   private transitionTo(next: NotificationStatus, now: Date): void {
     if (!allowedTransitions[this.props.status].includes(next)) {
       throw new InvalidStateTransitionError(this.props.status, next);

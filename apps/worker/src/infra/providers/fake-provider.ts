@@ -21,9 +21,11 @@ export class FakeNotificationProvider implements NotificationProvider {
     this.random = options.random ?? Math.random;
   }
 
-  async send(_notification: Notification): Promise<DeliveryResult> {
+  async send(notification: Notification): Promise<DeliveryResult> {
     if (this.latencyMs > 0) await sleep(this.latencyMs);
-    if (this.random() < this.failureRate) {
+    // Gatilho determinístico para demonstrar o fluxo de falha/DLQ: destinatários "fail...".
+    const poison = notification.to.toLowerCase().startsWith('fail');
+    if (poison || this.random() < this.failureRate) {
       throw new ProviderError('provedor externo indisponível', true);
     }
     return { providerMessageId: randomUUID() };
