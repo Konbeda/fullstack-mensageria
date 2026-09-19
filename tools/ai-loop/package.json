@@ -1,0 +1,16 @@
+{
+  "name": "@mensageria/ai-loop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env --import tsx run-feature.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.278"
+  }
+}

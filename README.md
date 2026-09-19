@@ -94,6 +94,15 @@ Com o stack no ar (`pnpm infra:up`) e API/worker rodando:
 - **Logs estruturados** (pino) no worker, com correlação por `notificationId`/canal/tentativa.
 - **Resiliência**: timeout em toda chamada ao provedor (`PROVIDER_TIMEOUT_MS`), além de retry, circuit breaker e DLQ; `GET /health` na API e no worker (readiness/liveness).
 
+## Desenvolvimento orquestrado por IA
+
+O projeto é desenvolvido com **múltiplos agentes de IA especializados por etapa** (planejamento, codificação, testes, revisão), com validação humana. Ver [docs/AI_WORKFLOW.md](docs/AI_WORKFLOW.md) e o [ADR 0001](docs/adr/0001-orquestracao-de-agentes-de-ia.md).
+
+- **Subagentes** (`.claude/agents/`): `planner`, `test-runner`, `security-reviewer`.
+- **Comando** `/feature "<descrição>"` (`.claude/commands/`): orquestra planejar → implementar → testar (loop) → revisar.
+- **Hooks** (`.claude/settings.json`): formatação automática ao editar.
+- **Runner headless** (`tools/ai-loop`, Claude Agent SDK): `pnpm ai:feature "<descrição>"` roda o loop de forma autônoma (requer `ANTHROPIC_API_KEY`).
+
 ## Build & deploy
 
 - **Imagens Docker** — cada app tem um Dockerfile multi-stage: `api`/`worker` compilam com tsup e rodam em `node:24-alpine` com só `dist` + deps de produção; `web` compila com Vite e é servido por `nginx` (que também faz proxy de `/api`).

@@ -17,6 +17,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "ai:feature": "pnpm --filter @mensageria/ai-loop start",
     "infra:up": "docker compose -f infra/docker-compose.yml up -d",
     "infra:stop": "docker compose -f infra/docker-compose.yml stop",
     "infra:down": "docker compose -f infra/docker-compose.yml down"
