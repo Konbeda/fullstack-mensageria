@@ -16,6 +16,9 @@ data:
   PROVIDER_FAILURE_RATE: '0'
   PROVIDER_TIMEOUT_MS: '5000'
   HEALTH_PORT: '3100'
+  RATE_LIMIT_MAX: '100'
+  RATE_LIMIT_WINDOW_MS: '60000'
+  METRICS_PORT: '9464'
 ---
 # Em produção real, gerencie estes valores com um secret manager (não versione credenciais).
 apiVersion: v1
@@ -29,3 +32,5 @@ stringData:
   REDIS_URL: redis://redis:6379
   RABBITMQ_URL: amqp://mensageria:mensageria@rabbitmq:5672
   MONGO_URL: mongodb://mongo:27017
+  API_KEY: troque-esta-chave-em-producao
+  METRICS_TOKEN: troque-este-token-em-producao

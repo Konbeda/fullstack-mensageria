@@ -24,6 +24,7 @@ spec:
           image: mensageria-api:local
           ports:
             - containerPort: 3000
+            - containerPort: 9464 # métricas (interno; scrape do Prometheus in-cluster)
           envFrom:
             - configMapRef: { name: mensageria-config }
             - secretRef: { name: mensageria-secret }

@@ -27,11 +27,13 @@ e **validação humana** antes de qualquer PR.
 ## Consequências
 
 **Positivas**
+
 - Qualidade não depende de disciplina manual: o gate de testes bloqueia regressões.
 - Cada etapa tem uma responsabilidade única — mais fácil auditar e melhorar isoladamente.
 - O fluxo é reproduzível e versionado no repositório (não vive só na cabeça de quem usa).
 
 **Custos / limites**
+
 - Os hooks passam a valer nas sessões locais do Claude Code neste repositório.
 - O runner headless consome créditos de API e exige `ANTHROPIC_API_KEY`.
 - A IA erra: a validação humana continua obrigatória — a automação reduz esforço, não

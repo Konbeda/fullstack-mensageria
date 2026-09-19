@@ -6,13 +6,13 @@ _fluxo de trabalho_ que produz o produto.
 
 ## Os agentes e suas etapas
 
-| Etapa | Quem executa | Responsabilidade |
-| --- | --- | --- |
-| **Planejamento** | subagente `planner` | Recebe a feature e devolve um plano: arquivos a tocar, passos, riscos e casos de teste. Só leitura. |
-| **Codificação** | agente principal | Implementa seguindo o plano, respeitando Clean Architecture, SOLID e o estilo do time. |
-| **Testes** | subagente `test-runner` | Roda Vitest e Playwright e devolve as falhas de forma estruturada para o loop de correção. É o **gate**. |
+| Etapa                 | Quem executa                                            | Responsabilidade                                                                                                            |
+| --------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Planejamento**      | subagente `planner`                                     | Recebe a feature e devolve um plano: arquivos a tocar, passos, riscos e casos de teste. Só leitura.                         |
+| **Codificação**       | agente principal                                        | Implementa seguindo o plano, respeitando Clean Architecture, SOLID e o estilo do time.                                      |
+| **Testes**            | subagente `test-runner`                                 | Roda Vitest e Playwright e devolve as falhas de forma estruturada para o loop de correção. É o **gate**.                    |
 | **Revisão de código** | `/code-review` (nativo) + subagente `security-reviewer` | Correção/SOLID/reuso via revisão nativa; segredos, injection, validação de input e authz via revisão de segurança dedicada. |
-| **Validação humana** | você | Aprova, corrige ou redireciona cada etapa. A IA acelera; a decisão é humana. |
+| **Validação humana**  | você                                                    | Aprova, corrige ou redireciona cada etapa. A IA acelera; a decisão é humana.                                                |
 
 ## O pipeline
 

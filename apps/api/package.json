@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",
+    "@fastify/helmet": "^13.1.1",
+    "@fastify/rate-limit": "^11.2.0",
     "@mensageria/contracts": "workspace:*",
     "@mensageria/core": "workspace:*",
     "@mensageria/infra": "workspace:*",

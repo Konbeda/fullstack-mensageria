@@ -10,12 +10,14 @@ import {
   UuidGenerator,
 } from '@mensageria/infra';
 import { createMetrics, type Metrics } from '@mensageria/observability';
+import type Redis from 'ioredis';
 import type { Env } from './config/env.js';
 import type { AppDependencies } from './http/dependencies.js';
 
 export interface Container {
   deps: AppDependencies;
   metrics: Metrics;
+  redis: Redis;
   dispose(): Promise<void>;
 }
 
@@ -41,6 +43,7 @@ export async function createContainer(env: Env): Promise<Container> {
   return {
     deps: { enqueue, getNotification, listNotifications },
     metrics: createMetrics(),
+    redis,
     dispose: async () => {
       await rabbit.close();
       redis.disconnect();

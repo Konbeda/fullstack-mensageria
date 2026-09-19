@@ -2,9 +2,10 @@ global:
   scrape_interval: 5s
 
 scrape_configs:
+  # Métricas da API ficam numa porta interna separada (9464), não na porta pública 3000.
   - job_name: api
     static_configs:
-      - targets: ['host.docker.internal:3000']
+      - targets: ['host.docker.internal:9464']
   - job_name: worker
     static_configs:
       - targets: ['host.docker.internal:3100']
